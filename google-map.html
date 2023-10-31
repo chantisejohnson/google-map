@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>MAPS API Solution</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="map" style="width: 600px; height: 400px;"></div>
+  <div id="location">
+    <label id="place">Address:</label>
+    <input id="address" type="textbox">
+    <input type="button" id="markerbtn" value="Search Address" onclick="getCoordinates()">
+  </div>
+  <div id="path-of-origin">
+    <label>Origin:</label>
+    <input id="origin" type="textbox">
+    <label id="dest">Destination:</label>
+    <input id="destination" type="textbox">
+    <input type="button" id="searchbtn" value="Search Route" onclick="calcRoute()">
+  </div>
+  <div id="circle">
+    <label>Latitude:</label>
+    <input type="textbox" id="lat">
+    <label id="lnglabel">Longitude:</label>
+    <input type="textbox" id="lng">
+    <label id="radius-label">Radius:</label>
+    <input type="textbox" id="radius">
+    <input type="button" id="circlebtn" value="Create Circle" onclick="circle()">
+  </div>
+  <div id="rectangle">
+    <label>North:</label>
+    <input type="textbox" id="north">
+    <label id="direction">South:</label>
+    <input type="textbox" id="south">
+    <label id="direction">East:</label>
+    <input type="textbox" id="east">
+    <label id="direction">West:</label>
+    <input type="textbox" id="west">
+    <input type="button" id="rectanglebtn" value="Create Rectangle" onclick="rectangle()">
+  </div>
+  <div id="polygon1">
+    <label>Latitude 1:</label>
+    <input type="textbox" id="polylat1">
+    <label id="lngply">Longitude 1:</label>
+    <input type="textbox" id="polylng1">
+  </div>
+  <div id="polygon2">
+    <label>Latitude 2:</label>
+    <input type="textbox" id="polylat2">
+    <label id="lngply">Longitude 2:</label>
+    <input type="textbox" id="polylng2">
+  </div>
+  <div id="polygon3">
+    <label>Latitude 3:</label>
+    <input type="textbox" id="polylat3">
+    <label id="lngply">Longitude 3:</label>
+    <input type="textbox" id="polylng3">
+    <div>
+      <input type="button" id="polygonbtn" value="Create Polygon" onclick="polygon()">
+    </div>
+    <div id="polyline1">
+      <label>Latitude 1:</label>
+      <input type="textbox" id="latline1">
+      <label id="lngline">Longitude 1:</label>
+      <input type="textbox" id="lngline1">
+    </div>
+    <div id="polyline2">
+      <label>Latitude 2:</label>
+      <input type="textbox" id="latline2">
+      <label id="lngline">Longitude 2:</label>
+      <input type="textbox" id="lngline2">
+    </div>
+    <div id="polyline3">
+      <label>Latitude 3:</label>
+      <input type="textbox" id="latline3">
+      <label id="lngline">Longitude 3:</label>
+      <input type="textbox" id="lngline3">
+    </div>
+    <div id="polyline4">
+      <label>Latitude 4:</label>
+      <input type="textbox" id="latline4">
+      <label id="lngline">Longitude 4:</label>
+      <input type="textbox" id="lngline4">
+    </div>
+    <div id="polylinebtn">
+      <input type="button" value="Create Polyline" onclick="polyline()">
+    </div>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyASKf_hqK9SOvwZrub5Y7ggKmV6CfMoasc&callback=initMap&v=weekly" defer></script>
+    <script>
+    //Initialize variables
+      var directionsService;
+      var directionsRenderer;
+      let geocoder;
+      let map;
+     //Initialize the map 
+      function initMap() {
+        directionsService = new google.maps.DirectionsService();
+        directionsRenderer = new google.maps.DirectionsRenderer();
+        geocoder = new google.maps.Geocoder();
+        const coordinates = {
+          lat: 41.081757, //Akron, Ohio latitude
+          lng: -81.511452 //Akron, Ohio longitude
+        };
+        map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 13,
+          center: coordinates,
+        });
+        directionsRenderer.setMap(map);
+        //Popup window displays latitude & longitude when map is clicked on
+        map.addListener("click", (e) => {
+          alert("You clicked the map at " + JSON.stringify(e.latLng.toJSON(), null, 2));
+        });
+      }
+      //Marker function: when address/name of location is typed, a marker will appear at that specific location
+      function getCoordinates() {
+        let address = document.getElementById('address').value;
+        geocoder.geocode({
+          'address': address
+        }, function(results, status) {
+          if(status == 'OK') {
+            map.setCenter(results[0].geometry.location);
+            let marker = new google.maps.Marker({
+              map: map,
+              position: results[0].geometry.location
+            });
+          }
+        });
+      }
+      //Path of origin to destination function: when location is placed in respective origin and destination input fields, a path will be shown on the map
+      function calcRoute() {
+        var start = document.getElementById('origin').value;
+        var end = document.getElementById('destination').value;
+        var request = {
+          origin: start,
+          destination: end,
+          travelMode: 'DRIVING'
+        };
+        directionsService.route(request, function(result, status) {
+          if(status == 'OK') {
+            directionsRenderer.setDirections(result);
+          }
+        });
+      }
+      //Circle function: when latitude, longitude & radius and typed into respective input fields, a circle will appear on the map
+      function circle() {
+        var lat = document.getElementById('lat').value;
+        var lng = document.getElementById('lng').value;
+        var radius = document.getElementById('radius').value;
+        const coordinates = {
+          lat: Number(lat),
+          lng: Number(lng)
+        };
+        const circle = new google.maps.Circle({
+          strokeColor: "blue",
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: "#FFF",
+          fillOpacity: 0.5,
+          map,
+          center: coordinates,
+          radius: Number(radius),
+        });
+      }
+      //Rectangle function: when latitudes and longitudes for each direction are placed in respective input fields, a rectangle appears on the map
+      function rectangle(north, south, east, west) {
+        var north = document.getElementById('north').value;
+        var south = document.getElementById('south').value;
+        var east = document.getElementById('east').value;
+        var west = document.getElementById('west').value;
+        const rectangle = new google.maps.Rectangle({
+          strokeColor: "#F31559",
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: "#FFF0000",
+          fillOpacity: 0.5,
+          map,
+          bounds: {
+            north: Number(north),
+            south: Number(south),
+            east: Number(east),
+            west: Number(west),
+          }
+        });
+      }
+      //Polygon function: when latitudes and longitudes are placed in respective fields, a 3-point polygon will appear on the map 
+      function polygon(polylat1, polylng1, polylat2, polylng2, polylat3, polylng3) {
+        var polylat1 = document.getElementById('polylat1').value;
+        var polylng1 = document.getElementById('polylng1').value;
+        var polylat2 = document.getElementById('polylat2').value;
+        var polylng2 = document.getElementById('polylng2').value;
+        var polylat3 = document.getElementById('polylat3').value;
+        var polylng3 = document.getElementById('polylng3').value;
+        const coordinates = [{
+          lat: Number(polylat1),
+          lng: Number(polylng1)
+        }, {
+          lat: Number(polylat2),
+          lng: Number(polylng2)
+        }, {
+          lat: Number(polylat3),
+          lng: Number(polylng3)
+        }, ];
+        const polygon = new google.maps.Polygon({
+          paths: coordinates,
+          strokeColor: "#black",
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: "orange",
+          fillOpacity: 0.35,
+        });
+        polygon.setMap(map);
+      }
+      //Polyline function: when latitudes and longitudes are typed in respective input fields, a polyline consisting of four coordinates appears on the map
+      function polyline(latline1, lngline1, latline2, lngline2, latline3, lngline3, latline4, lngline4) {
+        var latline1 = document.getElementById('latline1').value;
+        var lngline1 = document.getElementById('lngline1').value;
+        var latline2 = document.getElementById('latline2').value;
+        var lngline2 = document.getElementById('lngline2').value;
+        var latline3 = document.getElementById('latline3').value;
+        var lngline3 = document.getElementById('lngline3').value;
+        var latline4 = document.getElementById('latline4').value;
+        var lngline4 = document.getElementById('lngline4').value;
+        const coordinates = [{
+          lat: Number(latline1),
+          lng: Number(lngline1)
+        }, {
+          lat: Number(latline2),
+          lng: Number(lngline2)
+        }, {
+          lat: Number(latline3),
+          lng: Number(lngline3)
+        }, {
+          lat: Number(latline4),
+          lng: Number(lngline4)
+        }, ];
+        const polyline = new google.maps.Polyline({
+          path: coordinates,
+          geodesic: true,
+          strokeColor: "green",
+          strokeOpacity: 1.0,
+          strokeWeight: 2,
+        });
+        polyline.setMap(map);
+      }
+    </script>
+</body>
+
+</html>
