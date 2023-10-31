@@ -1,0 +1,2 @@
+# google-map
+This code is my execution of a Google Maps API. The set coordinates are in Akron, Ohio, but the input fields allow users to use coordinates of their choice. The code consists of forms and functions that enable users to place markers, circles, rectangles, polygons, and polylines on the map when data is placed in the respective input fields. Users can also find a path of origin to destination using the coordinates of their choice.
